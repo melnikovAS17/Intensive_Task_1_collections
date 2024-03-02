@@ -7,10 +7,10 @@ import java.util.Arrays;
 /**
  * Моя реализация ArrayList.
  * Реализовал только основные методы.
- * Для наглядности импользовал циклы, а не какие-лидбо готовые методы уже существующих
+ * Для наглядности импользовал циклы, а не какие-либо готовые методы уже существующих
  * интерфейсов и классов.
  */
-public class MyArrayList<T> implements MyList<T>{ //TODO добавить тесты
+public class MyArrayList<T> implements MyList<T>{
     /** Константа - целочисленное значение начального размера коллекции.  */
     private static final int INITIAL_CAPACITY = 10;
 
@@ -43,10 +43,13 @@ public class MyArrayList<T> implements MyList<T>{ //TODO добавить тес
             size++;
         }
         else {
-            /* В этом методе есть ошибка: при добавлении элемента сдвигаются все сотальные,
-               но так как в масиве могут быть пустоты (пустые ячейки), элементы которые стоят
-               ближе к концу ,при незвполненном масиве, должны будут перезписаться в следущий
-               индекс, а так как его не существует, элемент потеряется */
+            /* В этом методе есть нюанс: при добавлении элемента сдвигаются все сотальные,
+               но так как в масиве могут быть пустоты (пустые ячейки), элемент который стоит
+               в конце ,при незвполненном масиве, должен будет перезписаться в следущий
+               индекс, а так как его не существует, элемент потеряется , для этого необходимо
+               сделать проверку на заполненность последней ячейки и если там что-то есть,
+               увелитчь массив */
+            if(objectsArray[objectsArray.length -1 ] != null) increasingArray();
             checkOnLoad();
             for(int i = objectsArray.length - 1; i > index; i--){
                 objectsArray[i] = objectsArray[i -1];
@@ -73,7 +76,6 @@ public class MyArrayList<T> implements MyList<T>{ //TODO добавить тес
     public boolean removeElement(Object o) {
         for(int i = 0; i < objectsArray.length; i++){
             if(objectsArray[i].equals(o)) {
-                size--;
                 return removeElementByIndex(i);
             }
         }
@@ -84,7 +86,7 @@ public class MyArrayList<T> implements MyList<T>{ //TODO добавить тес
     public boolean removeElementByIndex(int index) {
         checkOnIndex(index);
         if(checkForEmptiness(index)) return false;
-        for(int i = index; i < size; i++){
+        for(int i = index; i < size - 1; i++){
             objectsArray[i] = objectsArray[i+1];
         }
         size--;
@@ -112,10 +114,10 @@ public class MyArrayList<T> implements MyList<T>{ //TODO добавить тес
      * и присваивает ссылке прошлой (неувеличенной) коллекции значения новой (увеличенной).
      */
     private void increasingArray(){
-        Object[] newArray = new Object[INITIAL_CAPACITY*2];
+        Object[] newArray = new Object[objectsArray.length*2];
         //Можно использовать Arrays.copyOf() - но для наглядности решил реализовать увеличение размера массива
         //через цикл
-        for (int i = 0; i < objectsArray.length; i++){
+        for (int i = 0; i < size; i++){
              newArray[i] = objectsArray[i];
         }
         objectsArray = newArray;
@@ -126,7 +128,7 @@ public class MyArrayList<T> implements MyList<T>{ //TODO добавить тес
      * Необходим для метода increasingArray().
      */
     private void checkOnLoad(){
-        if(size == Math.round(LOAD_FACTOR * INITIAL_CAPACITY)) increasingArray();
+        if(size >= Math.round(LOAD_FACTOR * objectsArray.length)) increasingArray();
     }
 
     /**
@@ -136,6 +138,13 @@ public class MyArrayList<T> implements MyList<T>{ //TODO добавить тес
      */
     private void checkOnIndex(int index){
         if(index >= objectsArray.length || index < 0) throw new IndexOutOfBoundsException();
+    }
+
+    /**
+     * !Метод для теста! возвращает длину массива
+     */
+    private int getArrayLength(){
+        return objectsArray.length;
     }
 
     @Override
